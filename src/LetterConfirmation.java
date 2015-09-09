@@ -1,5 +1,8 @@
 /**
- * Created by Austin on 9/6/15.
+ * Class that associates a letter that is being mapped to as confirmed or not confirmed
+ *
+ * @author Austin Herring
+ * @version 1.0
  */
 public class LetterConfirmation {
 
@@ -9,10 +12,6 @@ public class LetterConfirmation {
     LetterConfirmation(String value) {
         this.value = value;
         confirmed = false;
-    }
-    LetterConfirmation(String value, boolean confirmed) {
-        this.value = value;
-        this.confirmed = confirmed;
     }
 
     public void setConfirmed() {

@@ -12,10 +12,6 @@ public class PasswordGenerator {
 
     }
 
-    PasswordGenerator(String key) {
-        this.key = key;
-    }
-
     public String generate(String challenge) {
         String password = "";
         int challengeLength = challenge.length();
@@ -36,7 +32,7 @@ public class PasswordGenerator {
         while (j < keyLength) {
             if (key.charAt(j) == Character.toUpperCase(desiredLetter)) {
                 for (int k = j + 1; k < 2 * keyLength; k++) {
-                    if (!isVowel(key.charAt(k))) {
+                    if (!isVowel(key.charAt(k % keyLength))) {
                         return key.charAt(k % keyLength);
                     }
                 }

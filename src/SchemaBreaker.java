@@ -11,16 +11,16 @@ import java.util.LinkedList;
  */
 public class SchemaBreaker {
 
-    private HashMap<String,String> data;
     private HashMap<String,LetterConfirmation> guessedMapping;
+    private HashMap<String,String> history;
     private LinkedList<String> guessedKey;
     private String currentChallenge;
     private String currentPassword;
 
     SchemaBreaker() {
         guessedKey = new LinkedList<String>();
-        data = new HashMap<String, String>();
         guessedMapping = new HashMap<String, LetterConfirmation>();
+        history = new HashMap<String, String>();
         for (int i = 65; i < 91; i++) {
             guessedMapping.put(String.valueOf((char)i),
                     new LetterConfirmation(""));
@@ -29,40 +29,68 @@ public class SchemaBreaker {
     }
 
     public void takeChallenge(String currentChallenge) {
-        this.currentChallenge = currentChallenge;
+        this.currentChallenge = currentChallenge.toUpperCase();
     }
 
     public void takeFeedback(String password) {
-        data.put(currentChallenge, password);
         currentPassword = password;
+        history.put(currentChallenge, password.toUpperCase());
         updateMapping();
         updateKey();
     }
 
     public String guess(String website) {
-        //PasswordGenerator generator = new PasswordGenerator(guessedKey);
-
-            //return generator.generate(website);
-            String guess = "";
+        String guess = "";
+        if (history.keySet().contains(website.toUpperCase())) {
+            return history.get(website.toUpperCase());
+        } else {
             for (int i = 0; i < website.length(); i++) {
-                guess += guessedMapping.get(website.substring(i,i+1).toUpperCase()).getValue();
+                guess += guessedMapping.get(website.substring(i, i + 1).toUpperCase()).getValue();
             }
             return guess;
+        }
     }
 
     private void updateMapping() {
-        if (currentChallenge.length() == currentPassword.length()) {
-            for (int i = 0; i < currentChallenge.length(); i++) {
-                guessedMapping.put(currentChallenge.substring(i,i+1).toUpperCase(),
-                        new LetterConfirmation(currentPassword.substring(i,i+1).toUpperCase(), true));
+        LetterConfirmation ins;
+        LetterConfirmation passwordLetterPtr;
+        String challengeLetterPtr;
+        String unConfirmedLetters = "";
+        String confirmedLetters = "";
+        boolean equalLengths = currentChallenge.length() == currentPassword.length();
+        for (int i = 0; i < currentChallenge.length(); i++) {
+            challengeLetterPtr = currentChallenge.substring(i, i + 1).toUpperCase();
+            passwordLetterPtr = guessedMapping.get(challengeLetterPtr);
+            if (!passwordLetterPtr.isConfirmed() && equalLengths) {
+                ins = guessedMapping.get(challengeLetterPtr);
+                ins.setValue(currentPassword.substring(i, i + 1).toUpperCase());
+                ins.setConfirmed();
+                //, new LetterConfirmation(currentPassword.substring(i, i + 1).toUpperCase(), true));
+                confirmedLetters += challengeLetterPtr;
+            } else if (!passwordLetterPtr.isConfirmed()) {
+                unConfirmedLetters += challengeLetterPtr;
+            } else {
+                confirmedLetters += challengeLetterPtr;
             }
-        } else {
-            LetterConfirmation currentGuess;
-            for (int i = 0; i < currentChallenge.length(); i++) {
-                currentGuess = guessedMapping.get(currentChallenge.substring(i,i+1));
-                if (!currentGuess.isConfirmed()) {
-                    //TODO implement mapp updated for password < challenge
-                }
+        }
+
+        if (unConfirmedLetters.length() == 1) {
+            ins = guessedMapping.get(unConfirmedLetters);
+            ins.setConfirmed();
+            ins.setValue("");
+        } else if (unConfirmedLetters.length() > 1) {
+            String newLetterMappings = currentPassword;
+            String letterToRemove;
+            for (int i = 0; i < confirmedLetters.length(); i++) {
+                letterToRemove = guessedMapping.get(confirmedLetters.substring(i, i + 1)).getValue();
+                newLetterMappings = newLetterMappings.replaceFirst("" + letterToRemove, "");
+            }
+
+            int randomPicker;
+            for (int k = 0; k < unConfirmedLetters.length(); k++) {
+                randomPicker = k % newLetterMappings.length();
+                guessedMapping.get(unConfirmedLetters.substring(k, k + 1))
+                        .setValue(newLetterMappings.substring(randomPicker, randomPicker+ 1));
             }
         }
     }

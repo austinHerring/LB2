@@ -103,17 +103,18 @@ public class LB2Driver {
             } else {
                 breaker.takeChallenge(info);
                 boolean answering = true;
+                String decision;
                 while (answering) {
                     System.out.println("Is your password " + breaker.guess(info)
                             + "?\nEnter 'yes' or 'no'");
-                    info = input.nextLine();
-                    if (info.equals("no")) {
+                    decision = input.nextLine();
+                    if (decision.equals("no")) {
                         System.out.println("Darn, ok what is the correct " +
                                 "password then?");
                         breaker.takeFeedback(input.nextLine());
                         System.out.println("Lets try again then.");
                         answering = false;
-                    } else if (info.equals("yes")) {
+                    } else if (decision.equals("yes")) {
                         System.out.println("Hooray!! It took me " + tries +
                                 " tries to guess");
                         answering = false;
